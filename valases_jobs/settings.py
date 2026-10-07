@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -31,6 +32,17 @@ class Settings(BaseSettings):
     extraction_timeout_seconds: int = 15
     indexed_catalog: bool = False
     deployment_stage: Literal['staging','production'] = 'production'
+
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def use_installed_postgresql_driver(cls, value):
+        # Providers often return the bare PostgreSQL scheme. Our installed
+        # driver is psycopg 3, while SQLAlchemy's bare scheme selects psycopg2.
+        if isinstance(value, str):
+            for prefix in ("postgres://", "postgresql://"):
+                if value.startswith(prefix):
+                    return "postgresql+psycopg://" + value[len(prefix):]
+        return value
 
     @property
     def checkout_ready(self):

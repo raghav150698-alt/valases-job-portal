@@ -28,7 +28,8 @@ then redeploy; changing environment variables alone does not update an existing 
   Preview deployments need their own matching origin; do not point a preview at
   production configuration or production candidate data.
 - `JOBS_DATABASE_URL`: dedicated PostgreSQL database for candidates. Use a pooled
-  PostgreSQL URL compatible with `postgresql+psycopg://...` and provider-required
+  PostgreSQL URL (`postgres://...`, `postgresql://...` and explicit
+  `postgresql+psycopg://...` are supported) and provider-required
   TLS settings. Never use SQLite or the Hiring Tool database on Vercel.
 - `JOBS_REDIS_URL`: reachable Redis endpoint with TLS if required (`rediss://...`).
   A Redis HTTP REST URL is not compatible with this client.
@@ -73,3 +74,12 @@ implemented in this release; do not run the infinite worker inside a function.
 
 References: https://vercel.com/docs/frameworks/backend/fastapi and
 https://vercel.com/docs/functions/runtimes/python.
+
+### Runtime failure after a successful build
+
+A successful build does not verify application startup, service credentials or
+connectivity. For `FUNCTION_INVOCATION_FAILED`, use the project's request/runtime
+Logs, refresh the failed page and find its Python exception. Build Logs do not
+contain this traceback. Missing `JOBS_DATABASE_URL` / `JOBS_PUBLIC_ORIGIN` or
+incomplete launch settings intentionally prevent public startup. Do not replace
+these checks with demo mode, local SQLite or placeholder secrets.

@@ -29,6 +29,18 @@ with TestClient(app) as client:
         result = self.run_entry(code, {})
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_provider_postgresql_urls_use_installed_driver(self):
+        from sqlalchemy import create_engine
+        from valases_jobs.settings import Settings
+        tail = "example:placeholder@localhost/jobs?sslmode=require"
+        for scheme in ("postgres://", "postgresql://", "postgresql+psycopg://"):
+            with self.subTest(scheme=scheme):
+                settings = Settings(database_url=scheme + tail)
+                self.assertEqual(settings.database_url, "postgresql+psycopg://" + tail)
+                engine = create_engine(settings.database_url)
+                self.assertEqual(engine.dialect.driver, "psycopg")
+                engine.dispose()  # No connection is opened by this check.
+
     def test_vercel_refuses_default_local_sqlite(self):
         result = self.run_entry('import main', {'VERCEL': '1'})
         self.assertNotEqual(result.returncode, 0)
