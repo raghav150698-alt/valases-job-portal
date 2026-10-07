@@ -16,3 +16,6 @@ include = ["valases_jobs*"]
 
 [tool.setuptools.package-data]
 valases_jobs = ["web/**/*", "deploy/*", ".env.example"]
+
+[tool.vercel]
+entrypoint = "main:app"

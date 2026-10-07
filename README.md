@@ -51,6 +51,12 @@ at http://127.0.0.1:8010. Demo vacancies cannot receive applications or payments
 Demo verification/recovery links are exposed only in local demo API responses;
 public deployments reject demo mode. No actual email is sent from the demo.
 
+## Vercel deployment
+
+See [the Vercel setup guide](valases_jobs/deploy/VERCEL.md). The web app has a
+root FastAPI entry point. It requires external PostgreSQL/Redis and a separately
+hosted persistent worker for vacancy sync and email.
+
 ## Connect and deploy
 
 See `valases_jobs/deploy/README.md` for the existing-hosting deployment procedure, separate
