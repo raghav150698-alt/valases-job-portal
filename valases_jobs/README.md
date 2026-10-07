@@ -53,12 +53,12 @@ public deployments reject demo mode. No actual email is sent from the demo.
 
 ## Connect and deploy
 
-See `valases_jobs/deploy/README.md` for the existing-hosting deployment procedure, separate
+See `deploy/README.md` for the existing-hosting deployment procedure, separate
 PostgreSQL database, bridge setup, SMTP, Cashfree, worker and HTTPS routing.
 Configuration template: `.env.example`. Do not commit configured secrets.
 Readiness command: `python -m valases_jobs.check_launch`.
 
-The recruiter migration is `app/db/migrations/20261007_job_marketplace.sql` in the separate [Hiring Tool repository](https://github.com/raghav150698-alt/valases).
+The recruiter migration is `app/db/migrations/20261007_job_marketplace.sql`.
 The bridge secret must be configured server-side on both applications. Recruiters
 manage publication from their requisition cards. Applications open the existing
 Valases form; candidates review and submit there. Profiles are not silently
@@ -66,8 +66,8 @@ transferred and candidate/recruiter login sessions are separate.
 
 ## Validation and remaining launch work
 
-31 portal tests pass from this standalone checkout. Recruiter bridge tests remain in the Hiring Tool repository.
-Run `python -m unittest discover -s valases_jobs/tests` and
+35 candidate, bridge, payment and operations tests pass locally.
+Run `python -m pytest valases_jobs/tests tests/api/test_job_marketplace.py -q` and
 `node --check valases_jobs/web/app.js`. The recruiter React publication component
 passes the existing TypeScript project check.
 

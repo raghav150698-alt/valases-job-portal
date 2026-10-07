@@ -1,0 +1,25 @@
+@import url('/assets/base.css');
+
+/* Same logo asset and typography as the Valases hiring app. The frame trims
+   the asset's transparent canvas without changing its artwork or proportions. */
+:root { --ink: #123425; --green: #176b57; --lime: #80ed98; --muted: #68766f; --paper: #f5f7f3; --line: #dbe2de; }
+body { font-family: "Segoe UI", "Inter", sans-serif; }
+.brand { gap: 12px; letter-spacing: 0; flex-shrink: 0; }
+.logo-frame { display: block; position: relative; width: 194px; height: 42px; overflow: hidden; flex: none; }
+.valases-logo { display: block; position: absolute; width: 224px; height: auto; max-width: none; left: -18px; top: 50%; transform: translateY(-50%); }
+.brand-jobs { margin-left: 0; padding-left: 12px; border-left: 1px solid #c8d1cc; font-size: 19px; font-weight: 500; color: var(--green); }
+.hero-card { transform: none; background: #eef7f2; border-color: #dbe2de; }
+.premium { background: #eef7f2; border-color: #dbe2de; }
+.side-tab.active { background: #e5f2e8; }
+.primary { background: #176b57; border-color: #176b57; }
+.primary:hover { background: #123425; border-color: #123425; }
+.pill, .skill { background: #eef7f2; border-color: #dbe2de; }
+.footer-brand .logo-frame { width: 146px; height: 32px; }
+.footer-brand .valases-logo { width: 168px; left: -13px; }
+.footer-brand .brand-jobs { font-size: 16px; }
+@media (max-width: 700px) {
+  .header .logo-frame { width: 156px; height: 34px; }
+  .header .valases-logo { width: 180px; left: -14px; }
+  .header .brand-jobs { font-size: 16px; padding-left: 9px; }
+  .header > .outline { padding: 10px 12px; font-size: 11px; }
+}

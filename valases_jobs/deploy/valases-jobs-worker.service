@@ -1,0 +1,21 @@
+[Unit]
+Description=Valases Jobs catalog and email worker
+After=network-online.target
+
+[Service]
+User=valases-jobs
+Group=valases-jobs
+WorkingDirectory=/srv/valases-jobs
+EnvironmentFile=/etc/valases-jobs.env
+ExecStart=/srv/valases-jobs/.venv/bin/python -m valases_jobs.worker
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=2G
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

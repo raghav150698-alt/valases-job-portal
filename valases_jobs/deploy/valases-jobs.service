@@ -1,0 +1,22 @@
+[Unit]
+Description=Valases Jobs web service
+After=network-online.target
+
+[Service]
+User=valases-jobs
+Group=valases-jobs
+WorkingDirectory=/srv/valases-jobs
+EnvironmentFile=/etc/valases-jobs.env
+ExecStart=/srv/valases-jobs/.venv/bin/uvicorn valases_jobs.main:app --host 127.0.0.1 --port 8010 --workers 2 --no-access-log --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+MemoryMax=2G
+TasksMax=128
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target
