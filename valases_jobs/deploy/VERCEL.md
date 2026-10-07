@@ -89,3 +89,18 @@ function import. Visit `/ready` for a credential-free list of missing setup
 requirements. All account, matching and payment actions remain unavailable until
 normal startup passes validation. Runtime logs contain a `Job Portal startup
 blocked` message with controlled labels; setting values are never included.
+
+### Public preview before service setup
+
+Set `JOBS_PUBLIC_PREVIEW=true` in the Vercel environment being deployed and
+redeploy. This explicitly selects a separate preview app, with no database,
+Redis, SMTP, bridge, worker or Cashfree clients. Existing service settings are
+unused in this mode. It serves synthetic vacancies, search and bounded sample
+text matching; accounts, uploads, saved profiles, applications, payments,
+webhooks and emails are blocked by the server. A visible banner labels the
+preview. `/ready` reports `mode: public_preview` and `production_ready: false`.
+
+When ready for the operational portal, set `JOBS_PUBLIC_PREVIEW=false`, configure
+all required services, migrate the Jobs database and run the worker. The normal
+production checks remain enforced. Never use preview readiness as a production
+launch signal.

@@ -17,12 +17,17 @@ def local_origin(value):
 config = None
 try:
     config = Settings()
-    if os.environ.get("VERCEL") == "1":
-        if not config.database_url.startswith("postgresql"):
-            raise RuntimeError("Vercel requires JOBS_DATABASE_URL pointing to a dedicated PostgreSQL database")
-        if local_origin(config.public_origin):
-            raise RuntimeError("Set JOBS_PUBLIC_ORIGIN to this deployment's HTTPS origin")
-    from valases_jobs.main import app
+    if config.public_preview:
+        from valases_jobs.public_preview import create_preview_app
+        app = create_preview_app()
+    else:
+        if os.environ.get("VERCEL") == "1":
+            if not config.database_url.startswith("postgresql"):
+                raise RuntimeError("Vercel requires JOBS_DATABASE_URL pointing to a dedicated PostgreSQL database")
+            if local_origin(config.public_origin):
+                raise RuntimeError("Set JOBS_PUBLIC_ORIGIN to this deployment's HTTPS origin")
+        from valases_jobs.main import app
+
 except Exception as startup_error:
     if os.environ.get("VERCEL") != "1":
         raise

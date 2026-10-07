@@ -51,6 +51,13 @@ at http://127.0.0.1:8010. Demo vacancies cannot receive applications or payments
 Demo verification/recovery links are exposed only in local demo API responses;
 public deployments reject demo mode. No actual email is sent from the demo.
 
+## Public preview
+
+Set `JOBS_PUBLIC_PREVIEW=true` in Vercel and redeploy to explore sample jobs and
+matching without configuring other services. This mode has no accounts, uploads,
+applications, payments or email delivery. `/ready` identifies it as a preview,
+not a production-ready portal.
+
 ## Vercel deployment
 
 See [the Vercel setup guide](valases_jobs/deploy/VERCEL.md). The web app has a

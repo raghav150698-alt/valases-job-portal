@@ -29,6 +29,26 @@ with TestClient(app) as client:
         result = self.run_entry(code, {})
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_explicit_public_preview_starts_without_service_clients(self):
+        code = """
+from fastapi.testclient import TestClient
+from unittest.mock import patch
+with patch('sqlalchemy.create_engine', side_effect=AssertionError('No database in preview')) as database, \
+     patch('redis.Redis.from_url', side_effect=AssertionError('No Redis in preview')) as redis, \
+     patch('smtplib.SMTP', side_effect=AssertionError('No email in preview')) as smtp:
+    from main import app
+    with TestClient(app) as client:
+        assert client.get('/').status_code == 200
+        assert client.get('/api/jobs').json()['total'] == 4
+        assert client.get('/ready').json()['mode'] == 'public_preview'
+        assert client.post('/api/auth/register', json={}).status_code == 403
+    database.assert_not_called()
+    redis.assert_not_called()
+    smtp.assert_not_called()
+"""
+        result = self.run_entry(code, {'VERCEL': '1', 'JOBS_PUBLIC_PREVIEW': 'true'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_provider_postgresql_urls_use_installed_driver(self):
         from sqlalchemy import create_engine
         from valases_jobs.settings import Settings

@@ -69,3 +69,7 @@ h1{letter-spacing:-2.4px}.hero{padding-top:34px;padding-bottom:34px}
 
 .plan-panel{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd;margin:28px 0}.plan-panel h3{margin:0}.plan-panel p{max-width:600px}.alert-consent{display:flex;gap:12px;align-items:center;margin:20px 0}.alert-consent input{width:auto}dialog .text-button{display:block;margin:14px 0}dialog a{color:inherit}#account-notice,#checkout-status,#recovery-status{font-size:13px;overflow-wrap:anywhere}@media(max-width:620px){.plan-panel{align-items:flex-start;flex-direction:column}}
 .service-notice{max-width:800px;margin:50px auto;padding:24px;line-height:1.8}.service-notice h1{font-size:36px}.service-notice h2{font-size:20px;margin-top:32px}.service-notice a{color:inherit;text-decoration:underline}dialog{max-height:85vh;overflow:auto}#load-more,#more-matches{margin:20px 0}
+
+.preview-banner{padding:16px 24px;background:#eaf4de;color:#17351d;text-align:center;font:14px/1.6 sans-serif;border-bottom:1px solid #bed2b0}
+.public-preview .row-save,.public-preview .detail-save,.public-preview .save,.public-preview .plan-panel,.public-preview [data-view="saved"]{display:none}
+.public-preview button:disabled{cursor:not-allowed;opacity:.55}

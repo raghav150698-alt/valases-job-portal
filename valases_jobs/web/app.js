@@ -13,6 +13,18 @@ async function api(path, method = 'GET', body) {
   }
   return result;
 }
+function configurePublicPreview() {
+  document.body.classList.add('public-preview');
+  for (const id of ['account-button','save-profile','open-plan','resume-file','auth-submit','checkout-submit']) {
+    $(id).disabled = true;
+    $(id).title = 'Disabled in the public preview';
+  }
+  document.querySelector('[data-view="saved"]').disabled = true;
+  document.querySelector('.portal-heading p').textContent = 'Explore sample jobs and try matching with fictional experience.';
+  document.querySelector('.filter-note p').textContent = 'Try matching with the sample experience text.';
+  document.querySelector('.sidebar-foot').textContent = 'Public preview · sample vacancies';
+  $('resume').value = 'Sample experience: Built Python APIs, wrote SQL queries, used Git and automated testing with Selenium.';
+}
 function message(text, error = false) { $('status').textContent = text; $('status').hidden = !text; $('status').className = error ? 'error' : ''; }
 function el(tag, cls, text) { const node = document.createElement(tag); if (cls) node.className = cls; if (text) node.textContent = text; return node; }
 function empty(container, title, text) { container.replaceChildren(); const box = el('div','empty'); box.append(el('h3','',title),el('p','',text)); container.append(box); }
@@ -26,7 +38,7 @@ async function refreshUser() {
     const planText = state.user.plan_active ? 'Access active until ' + new Date(state.user.paid_until).toLocaleDateString() : 'Free account · search and applications included';
     $('account-plan').textContent = $('plan-status').textContent = planText;
     $('open-plan').textContent = state.user.plan_active ? 'Extend access · ₹79' : 'Get 30-day access · ₹79'; }
-  catch (error) { if (error.status !== 401) throw error; state.user = null; state.saved = new Set(); $('account-button').textContent = 'Sign in / Join'; $('plan-status').textContent='Sign in to save your profile and manage access.'; $('open-plan').textContent='Get 30-day access · '+String.fromCharCode(8377)+'79'; $('more-matches').hidden=true; }
+  catch (error) { if (error.status !== 401) throw error; state.user = null; state.saved = new Set(); $('account-button').textContent = state.config?.public_preview ? 'Preview mode' : 'Sign in / Join'; $('plan-status').textContent='Sign in to save your profile and manage access.'; $('open-plan').textContent='Get 30-day access · '+String.fromCharCode(8377)+'79'; $('more-matches').hidden=true; }
 }
 function show(view) {
   state.view = view;
@@ -184,6 +196,6 @@ async function handleLinks(){
  }catch(error){message(error.message,true);}
 }
 window.addEventListener('hashchange',handleLinks);
-(async()=>{ try {state.config=await api('/config');await refreshUser();await loadJobs();await handleLinks();const orderId=new URLSearchParams(location.search).get('order_id');if(orderId&&state.user){const result=await api('/billing/orders/'+encodeURIComponent(orderId)+'/verify','POST');await refreshUser();if(result.granted){sessionStorage.removeItem('jobs_checkout_key');sessionStorage.removeItem('jobs_order_id');message('Payment verified. Your 30-day access is active.');}else message('Payment is pending. Check your account again shortly.');history.replaceState(null,'','/');}}catch(error){message(error.message,true);}})();
+(async()=>{ try {state.config=await api('/config');if(state.config.public_preview)configurePublicPreview();await refreshUser();await loadJobs();if(!state.config.public_preview)await handleLinks();const orderId=new URLSearchParams(location.search).get('order_id');if(orderId&&state.user){const result=await api('/billing/orders/'+encodeURIComponent(orderId)+'/verify','POST');await refreshUser();if(result.granted){sessionStorage.removeItem('jobs_checkout_key');sessionStorage.removeItem('jobs_order_id');message('Payment verified. Your 30-day access is active.');}else message('Payment is pending. Check your account again shortly.');history.replaceState(null,'','/');}}catch(error){message(error.message,true);}})();
 
 $('more-matches').onclick=async()=>{ const button=$('more-matches');button.disabled=true;try {const result=await api('/me/matches?offset='+state.matchLoaded+'&limit=50');result.items.forEach(match=>$('matches').append(card(match.job,match)));state.matchLoaded+=result.items.length;button.hidden=state.matchLoaded>=result.total;}catch(error){message(error.message,true);}finally{button.disabled=false;}};
