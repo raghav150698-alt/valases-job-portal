@@ -41,18 +41,58 @@ with TestClient(app) as client:
                 self.assertEqual(engine.dialect.driver, "psycopg")
                 engine.dispose()  # No connection is opened by this check.
 
-    def test_vercel_refuses_default_local_sqlite(self):
-        result = self.run_entry('import main', {'VERCEL': '1'})
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Vercel requires JOBS_DATABASE_URL', result.stderr)
+    def test_unconfigured_vercel_reports_requirements_and_blocks_actions(self):
+        code = """
+from fastapi.testclient import TestClient
+from main import app
+with TestClient(app) as client:
+    ready = client.get('/ready')
+    assert ready.status_code == 503 and ready.json()['ready'] is False
+    assert 'Dedicated PostgreSQL database is required' in ready.json()['issues']
+    assert any('JOBS_PUBLIC_ORIGIN' in issue for issue in ready.json()['issues'])
+    assert client.get('/').status_code == 503
+    assert client.post('/api/auth/register', json={}).status_code == 503
+    assert client.post('/api/payments/webhook', json={}).status_code == 503
+"""
+        result = self.run_entry(code, {'VERCEL': '1'})
+        self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_vercel_requires_deployed_origin_before_loading_app(self):
-        result = self.run_entry('import main', {
+    def test_database_accepted_and_remaining_setup_reported_without_secrets(self):
+        secret = 'sentinel-password-never-log'
+        code = """
+from fastapi.testclient import TestClient
+from main import app
+with TestClient(app) as client:
+    ready = client.get('/ready')
+    assert ready.status_code == 503
+    issues = ready.json()['issues']
+    assert 'Dedicated PostgreSQL database is required' not in issues
+    assert 'Shared Redis rate limiting is not configured' in issues
+    assert 'Data encryption key is missing' in issues
+    assert 'sentinel-password-never-log' not in ready.text
+    assert 'postgresql://' not in ready.text
+"""
+        result = self.run_entry(code, {
             'VERCEL': '1',
-            'JOBS_DATABASE_URL': 'postgresql+psycopg://example:placeholder@localhost/jobs',
+            'JOBS_DATABASE_URL': 'postgresql://example:' + secret + '@localhost/jobs',
+            'JOBS_PUBLIC_ORIGIN': 'https://valases-job-portal.vercel.app',
         })
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Set JOBS_PUBLIC_ORIGIN', result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn(secret, result.stderr)
+
+    def test_invalid_setting_does_not_leak_input(self):
+        code = """
+from fastapi.testclient import TestClient
+from main import app
+with TestClient(app) as client:
+    response = client.get('/ready')
+    assert response.status_code == 503
+    assert response.json()['error_type'] == 'ValidationError'
+    assert 'sentinel-private-input' not in response.text
+"""
+        result = self.run_entry(code, {'VERCEL': '1', 'JOBS_SMTP_PORT': 'sentinel-private-input'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('sentinel-private-input', result.stderr)
 
 
 if __name__ == '__main__':

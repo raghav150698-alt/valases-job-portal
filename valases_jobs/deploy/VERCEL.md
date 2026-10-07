@@ -83,3 +83,9 @@ Logs, refresh the failed page and find its Python exception. Build Logs do not
 contain this traceback. Missing `JOBS_DATABASE_URL` / `JOBS_PUBLIC_ORIGIN` or
 incomplete launch settings intentionally prevent public startup. Do not replace
 these checks with demo mode, local SQLite or placeholder secrets.
+
+Startup configuration errors now return a controlled 503 instead of crashing the
+function import. Visit `/ready` for a credential-free list of missing setup
+requirements. All account, matching and payment actions remain unavailable until
+normal startup passes validation. Runtime logs contain a `Job Portal startup
+blocked` message with controlled labels; setting values are never included.
