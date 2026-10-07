@@ -4,5 +4,6 @@
     "main.py": {
       "maxDuration": 60
     }
-  }
+  },
+  "framework": "fastapi"
 }

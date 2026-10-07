@@ -2,6 +2,9 @@
 
 Deploy the standalone `valases-job-portal` repository, not the Hiring Tool or Website.
 The root `main.py` exports the FastAPI app; `pyproject.toml` declares `main:app`.
+`vercel.json` explicitly selects the `fastapi` framework so the build does not
+fall back to generic `/api` function discovery. Dependencies are listed directly
+in `pyproject.toml` as well as `requirements.txt` for framework detection.
 The app serves both `/` and `/assets/*`, plus the `/api/*` routes.
 
 ## Project settings
@@ -58,6 +61,9 @@ implemented in this release; do not run the infinite worker inside a function.
 4. Test registration, verification email, resume parsing and the application handoff
    in staging before public launch. Test payment delivery only in the intended environment.
 
+- Unmatched `main.py` function pattern: confirm the deployed `vercel.json` contains
+  `"framework": "fastapi"`; remove any project setting override that selects a
+  static framework or Other.
 - 404: check repository, deployed commit, Root Directory and framework overrides.
 - Build failure: copy the Python dependency error from Vercel build logs.
 - FUNCTION_INVOCATION_FAILED: inspect runtime logs for missing environment settings,
