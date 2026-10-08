@@ -312,6 +312,8 @@ def create_app(settings=None, engine=None):
 
     install(app, config, account, db_session, limit, mail, password_hash, vault)
     install_pages(app,config)
+    from valases_jobs.scheduled import install_scheduled_tasks
+    install_scheduled_tasks(app, config, engine)
 
     app.mount("/assets", StaticFiles(directory=WEB), name="assets")
 

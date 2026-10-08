@@ -13,7 +13,7 @@ class ValasesBridge:
         self.cached_at = 0
         self.lock = Lock()
 
-    def jobs(self):
+    def jobs(self, *, deadline=None):
         if self.settings.demo:
             return [{**job, "demo": True, "apply_url": None} for job in JOBS]
         if not self.settings.valases_api_url or len(self.settings.bridge_key) < 32:
@@ -25,9 +25,13 @@ class ValasesBridge:
                 jobs, cursor = [], 0
                 with httpx.Client(timeout=10, follow_redirects=False) as client:
                     for _ in range(self.settings.catalog_page_limit):
+                        remaining = deadline - time.monotonic() if deadline is not None else None
+                        if remaining is not None and remaining <= 1:
+                            raise HTTPException(503, 'Catalog synchronization exceeded its batch budget')
                         response = client.get(self.settings.valases_api_url.rstrip("/") + "/job-marketplace/jobs",
                                               params={"after": cursor, "limit": 200},
-                                              headers={"Authorization": "Bearer " + self.settings.bridge_key})
+                                              headers={"Authorization": "Bearer " + self.settings.bridge_key},
+                                              timeout=min(5, remaining / 4) if remaining is not None else 10)
                         response.raise_for_status()
                         data = response.json()
                         for job in data["items"]:

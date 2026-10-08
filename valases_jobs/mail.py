@@ -37,7 +37,7 @@ class MailService:
         self.enqueue(db,user,subject,f"{subject}\n\nOpen this link:\n{link}\n\nIf you did not request this, ignore this email.","action:"+sha256(token.encode()).hexdigest())
         return link
 
-    def deliver_one(self, db):
+    def deliver_one(self, db, *, timeout=20):
         if self.settings.demo or not self.cipher or not self.settings.smtp_host:
             return False
         now = datetime.now(timezone.utc)
@@ -60,7 +60,7 @@ class MailService:
             sender_domain=parseaddr(self.settings.smtp_sender)[1].rsplit('@',1)[-1]
             message["Subject"]=payload["subject"]; message["Message-ID"]=f"<{row.id}@{sender_domain}>"
             message.set_content(payload["body"])
-            with smtplib.SMTP(self.settings.smtp_host,self.settings.smtp_port,timeout=20) as smtp:
+            with smtplib.SMTP(self.settings.smtp_host,self.settings.smtp_port,timeout=timeout) as smtp:
                 smtp.starttls(context=ssl.create_default_context())
                 if self.settings.smtp_username:
                     smtp.login(self.settings.smtp_username,self.settings.smtp_password)

@@ -61,8 +61,8 @@ not a production-ready portal.
 ## Vercel deployment
 
 See [the Vercel setup guide](valases_jobs/deploy/VERCEL.md). The web app has a
-root FastAPI entry point. It requires external PostgreSQL/Redis and a separately
-hosted persistent worker for vacancy sync and email.
+root FastAPI entry point. It requires external PostgreSQL/Redis and either
+authenticated scheduled tasks or a separately hosted persistent worker.
 
 ## Connect and deploy
 
@@ -79,7 +79,8 @@ transferred and candidate/recruiter login sessions are separate.
 
 ## Validation and remaining launch work
 
-31 portal tests pass from this standalone checkout. Recruiter bridge tests remain in the Hiring Tool repository.
+Portal tests cover the scheduled tasks as well as accounts, catalog, matching,
+payments and preview behavior. Recruiter bridge tests remain in the Hiring Tool repository.
 Run `python -m unittest discover -s valases_jobs/tests` and
 `node --check valases_jobs/web/app.js`. The recruiter React publication component
 passes the existing TypeScript project check.

@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     bridge_key: str = ""
     demo: bool = False
     public_preview: bool = False
+    background_mode: Literal['persistent', 'scheduled'] = 'persistent'
+    cron_secret: str = ''
     secure_cookies: bool = True
     create_schema: bool = False
     redis_url: str = ""
@@ -52,6 +54,8 @@ class Settings(BaseSettings):
     def launch_issues(self):
         issues = []
         if self.public_preview: issues.append("Public preview is enabled; operational launch is disabled")
+        if self.background_mode == 'scheduled' and len(self.cron_secret) < 32:
+            issues.append('Scheduled processing secret must contain at least 32 characters')
         if self.demo: issues.append("Demo inventory is enabled")
         if not self.database_url.startswith("postgresql"): issues.append("Dedicated PostgreSQL database is required")
         if not self.redis_url: issues.append("Shared Redis rate limiting is not configured")

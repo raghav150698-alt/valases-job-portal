@@ -54,11 +54,11 @@ class Payments:
         except (httpx.HTTPError,ValueError):
             raise HTTPException(502,"Payment provider is unavailable. Retry this checkout.") from None
 
-    def verify(self, db, order_id):
+    def verify(self, db, order_id, *, timeout=20):
         if not self.settings.checkout_ready:
             raise HTTPException(503,"Checkout is not configured")
         try:
-            response=httpx.get(self.base_url+"/orders/"+order_id,headers=self.headers(),timeout=20)
+            response=httpx.get(self.base_url+"/orders/"+order_id,headers=self.headers(),timeout=timeout)
             response.raise_for_status(); data=response.json()
         except (httpx.HTTPError,ValueError):
             raise HTTPException(502,"Payment verification is temporarily unavailable") from None
